@@ -1,0 +1,14 @@
+#visual {
+	float: left;
+	height: 300px;
+	width: 300px;
+}
+
+.burette {
+	height: 300px;
+	width: 50px;
+	float: left;
+	background-color: black;
+	border: 1px solid gray;
+	color: white;
+}
