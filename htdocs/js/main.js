@@ -73,19 +73,24 @@ var Main = {
     Main.max = $('#max').val();
     //Main.index = 0;
 
-    //init val of freq boundary
-    $('#min').val(25);
+    //init val of freq boundary and threshold
+    $('#min').val(20);
     $('#red').val(35);
-    $('#orange').val(41);
-    $('#yellow').val(51);
-    $('#green').val(59);
-    $('#blue').val(68);
+    $('#orange').val(40);
+    $('#yellow').val(45);
+    $('#green').val(50);
+    $('#blue').val(55);
     
     $('#thres1').val(700);
     $('#thres2').val(700);
     $('#thres3').val(700);
     $('#thres4').val(700);
     $('#thres5').val(700);
+
+    //valves controller param
+    Main.onCounter = [0,0,0,0,0];
+    Main.offCounter = [0,0,0,0,0];
+    Main.thresIDs = ['#thres1','#thres2','#thres3','#thres4','#thres5'];
 
     //arduino
     
@@ -187,24 +192,47 @@ var Main = {
     Main.thresholds[3] = $('#thres4').val();
     Main.thresholds[4] = $('#thres5').val();
 
+    var openedValves = 0;
 
     for (var i = 0; i < burreteCount; i++) {
       if (!Main.buretteElements[i]) {
         break;
       }
       if (Main.burettes[i] > Main.thresholds[i]) {
+        openedValves++;
+        Main.onCounter[i]++;
+        Main.offCounter[i]=0;
+        Main.b
         $(Main.buretteElements[i]).css("background-color", "black")        
         if (document.arduino) {
           document.arduino.digitalWrite(Main.ports[i], true);
         }else console.log("not found arduino");
       } else {
+        Main.onCounter[i]=0;
+        Main.offCounter[i]++;
         $(Main.buretteElements[i]).css("background-color", "gray")        
         if (document.arduino) {
           document.arduino.digitalWrite(Main.ports[i], false);
         }
       }
       Main.buretteElements[i].textContent = Main.burettes[i];
+    
+        //valves Controll
+        if(Main.onCounter[i]>20 &&openedValves<3){ 
+             $(Main.thresIDs[i]).val(Number(Main.thresholds[i])+40);     
+            Main.onCounter[i] = 0;
+        }
+        if(Main.offCounter[i]>20&&openedValves<3){ 
+            $(Main.thresIDs[i]).val(Number(Main.thresholds[i])-40);     
+            Main.offCounter[i] = 0;
+        }
+        if(openedValves > 3){
+            for(var i=0;i<5;i++)$(Main.thresIDs[i]).val(Math.random()*1000);     
+        }
+
+      
     }
+
     requestAnimationFrame(Main.update);
   },
 
