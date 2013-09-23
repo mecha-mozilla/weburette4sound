@@ -64,6 +64,7 @@ var Main = {
     //Main.cepst = cepst;
     //Main.buf1 = new Uint8Array(analyser2.frequencyBinCount);
 
+    Main.thresholds = [500,500,500,500,500];
     Main.min = $('#min').val();
     Main.RedLimit = $('#red').val();
     Main.orangeLimit = $('#orange').val();
@@ -80,6 +81,11 @@ var Main = {
     $('#green').val(59);
     $('#blue').val(68);
     
+    $('#thres1').val(700);
+    $('#thres2').val(700);
+    $('#thres3').val(700);
+    $('#thres4').val(700);
+    $('#thres5').val(700);
 
     //arduino
     
@@ -175,11 +181,18 @@ var Main = {
       Main.burettes[index] += value;
     }
 
+    Main.thresholds[0] = $('#thres1').val();
+    Main.thresholds[1] = $('#thres2').val();
+    Main.thresholds[2] = $('#thres3').val();
+    Main.thresholds[3] = $('#thres4').val();
+    Main.thresholds[4] = $('#thres5').val();
+
+
     for (var i = 0; i < burreteCount; i++) {
       if (!Main.buretteElements[i]) {
         break;
       }
-      if (Main.burettes[i] > 1000) {
+      if (Main.burettes[i] > Main.thresholds[i]) {
         $(Main.buretteElements[i]).css("background-color", "black")        
         if (document.arduino) {
           document.arduino.digitalWrite(Main.ports[i], true);
