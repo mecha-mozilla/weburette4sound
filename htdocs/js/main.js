@@ -29,40 +29,18 @@ var Main = {
     var mediaStreamSource = audioContext.createMediaStreamSource(stream);
     var analyser = audioContext.createAnalyser();
     analyser.fftSize = 512;
-    //var analyser2 = audioContext.createAnalyser();
-    //analyser2.fftSize = 512;
-    //var gain = audioContext.createGain();
-    //gain.gain.value = 0;  
-    
-    //var scrproc = audioContext.createScriptProcessor(512);
 
-    //scrproc.onaudioprocess = Main.Process;
-    //scrproc.connect(analyser);
-    
     var filter = audioContext.createBiquadFilter();
-
     var frequencyData = new Uint8Array(analyser.frequencyBinCount);
-    //var cepst = new Uint8Array(analyser2.frequencyBinCount);
 
     mediaStreamSource.connect(analyser);
     mediaStreamSource.channelInterpretation = "discrete";
-    //gain.connect(AudioContext.destination);
-    //gain.connect(filter);
-
+    
     filter.type = 0; 
     filter.frequency.value = 800; 
-    //filter.connect(analyser);
-    //scrproc.connect(analyser);
     analyser.connect(audioContext.destination);
-    //Main.src = mediaStreamSource;
-    //Main.scrproc = scrproc;
     Main.analyser = analyser;
-    //Main.analyser2 = analyser2;
-
-    //Main.gain = gain;
     Main.data = frequencyData;
-    //Main.cepst = cepst;
-    //Main.buf1 = new Uint8Array(analyser2.frequencyBinCount);
 
     Main.thresholds = [500,500,500,500,500];
     Main.min = $('#min').val();
@@ -81,11 +59,6 @@ var Main = {
     $('#green').val(60);
     $('#blue').val(70);
     
-    $('#thres1').val(700);
-    $('#thres2').val(700);
-    $('#thres3').val(700);
-    $('#thres4').val(700);
-    $('#thres5').val(700);
 
     //valves controller param
     Main.onCounter = [0,0,0,0,0];
@@ -117,13 +90,7 @@ var Main = {
 
     Main.update();
   },
-    /* Process: function (ev) {　
-        var buf0 = ev.outputBuffer.getChannelData(0);
-        //Main.analyser2.getByteFrequencyData(Main.cepst);
-        buf0 = Main.buf1;
 
-    } ,
-    */
   update: function() {
     //clear burette
     var burreteCount = Main.burettes.length;
@@ -138,16 +105,6 @@ var Main = {
     var analyser = Main.analyser;
     analyser.getByteFrequencyData(data);
 
-    /*var analyser2 = Main.analyser2;
-    var gain = Main.gain;
-    analyser2.getByteFrequencyData(data);
-    Main.cepst[Main.index] =data[$('index').val()];
-    if(Main.index++ > 512){
-        Main.index = 0;
-        Main.buf1 = Main.cepst;
-        Main.cepst = [];
-      }
-    */
     context.clearRect(0, 0, width, height);
     //context.beginPath();
     var wOfLine = width / data.length;
