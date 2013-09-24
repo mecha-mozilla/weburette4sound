@@ -71,15 +71,15 @@ var Main = {
     Main.yellowLimit = $('#yellow').val();
     Main.blueLimit = $('#blue').val();
     Main.max = $('#max').val();
-    //Main.index = 0;
+    Main.lefts = [0,0,0,0,0];
 
     //init val of freq boundary and threshold
-    $('#min').val(20);
-    $('#red').val(35);
+    $('#min').val(25);
+    $('#red').val(30);
     $('#orange').val(40);
-    $('#yellow').val(45);
-    $('#green').val(50);
-    $('#blue').val(55);
+    $('#yellow').val(50);
+    $('#green').val(60);
+    $('#blue').val(70);
     
     $('#thres1').val(700);
     $('#thres2').val(700);
@@ -91,6 +91,7 @@ var Main = {
     Main.onCounter = [0,0,0,0,0];
     Main.offCounter = [0,0,0,0,0];
     Main.thresIDs = ['#thres1','#thres2','#thres3','#thres4','#thres5'];
+    Main.meterIDs = ['#meter1','#meter2','#meter3','#meter4','#meter5'];
 
     //arduino
     
@@ -192,21 +193,21 @@ var Main = {
     Main.thresholds[3] = $('#thres4').val();
     Main.thresholds[4] = $('#thres5').val();
 
-    var openedValves = 0;
+    var openedValves = [];
 
     for (var i = 0; i < burreteCount; i++) {
       if (!Main.buretteElements[i]) {
         break;
       }
       if (Main.burettes[i] > Main.thresholds[i]) {
-        openedValves++;
+        openedValves.push(i);
         Main.onCounter[i]++;
         Main.offCounter[i]=0;
-        Main.b
+        Main.lefts[i]+=0.1;
         $(Main.buretteElements[i]).css("background-color", "black")        
         if (document.arduino) {
           document.arduino.digitalWrite(Main.ports[i], true);
-        }else console.log("not found arduino");
+        }//else console.log("not found arduino");
       } else {
         Main.onCounter[i]=0;
         Main.offCounter[i]++;
@@ -215,21 +216,31 @@ var Main = {
           document.arduino.digitalWrite(Main.ports[i], false);
         }
       }
+      $(Main.meterIDs[i]).css("height",Main.lefts[i]);
       Main.buretteElements[i].textContent = Main.burettes[i];
     
-        //valves Controll
-        if(Main.onCounter[i]>20 &&openedValves<3){ 
-             $(Main.thresIDs[i]).val(Number(Main.thresholds[i])+40);     
-            Main.onCounter[i] = 0;
-        }
-        if(Main.offCounter[i]>20&&openedValves<3){ 
-            $(Main.thresIDs[i]).val(Number(Main.thresholds[i])-40);     
-            Main.offCounter[i] = 0;
-        }
-        if(openedValves > 3){
-            for(var i=0;i<5;i++)$(Main.thresIDs[i]).val(Math.random()*1000);     
-        }
 
+      //valves Controll
+      //しばらく開いてるバルブの閾値を上げ、しばらく閉じてるバルブの閾値を下げることによって
+      //特定のバルブだけずっと開きっぱなしとかさせない
+      if(Main.onCounter[i]>30 &&openedValves<3){ 
+         $(Main.thresIDs[i]).val(Number(Main.thresholds[i])+50);     
+         Main.onCounter[i] = 0;
+      }
+      if(Main.offCounter[i]>30&&openedValves<3){ 
+        $(Main.thresIDs[i]).val(Number(Main.thresholds[i])-80);     
+        Main.offCounter[i] = 0;
+      }
+
+
+      //一番出してるビュレットの閾値を遠くへすっ飛ばしてしばらく開かないようにする      
+      //sort burettes
+      var first = 0;
+      for(var k=1; k<5; k++){
+          if(Main.lefts[k] > Main.lefts[first])first = k;
+      }
+      if(openedValves.length > 3)
+         $(Main.thresIDs[first]).val(Number(Main.thresholds[first])+Math.random()*800);
       
     }
 
@@ -239,6 +250,7 @@ var Main = {
   error: function(message) {
     alert(message);
   }
+
 };
 
 $(document).ready(function() {

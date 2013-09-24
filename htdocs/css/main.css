@@ -16,3 +16,14 @@
 input{
 	width:300px;
 }
+.meter {
+	height: 300px;
+	width: 50px;
+	float: left;
+	background-color: black;
+	border: 1px solid gray;
+	color: blue;
+}
+#meter1{
+	height : 50px;
+}
