@@ -69,10 +69,12 @@ var Main = {
     //arduino
     
     if (document.arduino) {
-      Main.ports = [12, 11, 10, 9, 8];
+      //Main.ports = [12, 8, 10, 9, 11];
+      Main.ports = [11,9,10,8,12];
+
       //arduino をオープン。引数はデバイスポートです。
-      //document.arduino.open("/dev/cu.usbmodem1411");
-      document.arduino.open("/dev/cu.usbmodemfa131"); 
+      //document.arduino.open("/dev/cu.usbmodemfa131");
+      document.arduino.open("/dev/cu.usbmodemfd111"); 
       //ピンを出力に設定 (true: OUTPUT, false: INPUT)
       for (var i = 0, n = Main.ports.length; i < n; i++) {
         document.arduino.pinMode(Main.ports[i], true);
@@ -177,28 +179,31 @@ var Main = {
       Main.buretteElements[i].textContent = Main.burettes[i];
     
 
-      //valves Controll
-      //しばらく開いてるバルブの閾値を上げ、しばらく閉じてるバルブの閾値を下げることによって
-      //特定のバルブだけずっと開きっぱなしとかさせない
-      if(Main.onCounter[i]>30 &&openedValves<3){ 
-         $(Main.thresIDs[i]).val(Number(Main.thresholds[i])+50);     
-         Main.onCounter[i] = 0;
-      }
-      if(Main.offCounter[i]>30&&openedValves<3){ 
-        $(Main.thresIDs[i]).val(Number(Main.thresholds[i])-80);     
-        Main.offCounter[i] = 0;
-      }
+      var auto = false;
+      if($('#auto:checked').val() == "on")auto = true;  
+      if(auto){
+        //valves Controll
+        //しばらく開いてるバルブの閾値を上げ、しばらく閉じてるバルブの閾値を下げることによって
+         //特定のバルブだけずっと開きっぱなしとかさせない
+        if(Main.onCounter[i]>15 &&openedValves<3){ 
+           $(Main.thresIDs[i]).val(Number(Main.thresholds[i])+80);     
+           Main.onCounter[i] = 0;
+        }
+        if(Main.offCounter[i]>30&&openedValves<3){ 
+          $(Main.thresIDs[i]).val(Number(Main.thresholds[i])-80);     
+          Main.offCounter[i] = 0;
+        }
 
 
-      //一番出してるビュレットの閾値を遠くへすっ飛ばしてしばらく開かないようにする      
-      //sort burettes
-      var first = 0;
-      for(var k=1; k<5; k++){
-          if(Main.lefts[k] > Main.lefts[first])first = k;
+        //一番出してるビュレットの閾値を遠くへすっ飛ばしてしばらく開かないようにする      
+        //sort burettes
+        var first = 0;
+        for(var k=1; k<5; k++){
+            if(Main.lefts[k] > Main.lefts[first])first = k;
+        }
+        if(openedValves.length > 3)
+           $(Main.thresIDs[first]).val(Number(Main.thresholds[first])+Math.random()*800);
       }
-      if(openedValves.length > 3)
-         $(Main.thresIDs[first]).val(Number(Main.thresholds[first])+Math.random()*800);
-      
     }
 
     requestAnimationFrame(Main.update);
