@@ -152,6 +152,12 @@ var Main = {
     Main.thresholds[3] = $('#thres4').val();
     Main.thresholds[4] = $('#thres5').val();
 
+    var alchol = false;
+    if($('#alchol:checked').val() == "on") alchol = true;  
+    if(alchol)Main.thresholds[0] = 2000;
+    else Main.thresholds[0] = 486; 
+
+
     var openedValves = [];
 
     for (var i = 0; i < burreteCount; i++) {
@@ -177,7 +183,13 @@ var Main = {
       }
       $(Main.meterIDs[i]).css("height",Main.lefts[i]);
       Main.buretteElements[i].textContent = Main.burettes[i];
-    
+      
+
+      //valve cleaning
+      if (document.arduino&&$('#cleaning:checked').val() == "on") {
+        document.arduino.digitalWrite(Main.ports[i], true);
+      }
+
 
       var auto = false;
       if($('#auto:checked').val() == "on")auto = true;  
